@@ -13,8 +13,8 @@ struct ContentView: View {
   @State private var freqIncr: CGFloat = 20_000
   @State private var dbmHigh: CGFloat = 10
   @State private var dbmLow: CGFloat = -100
-  @State private var dbmIncr: CGFloat = 10
-  
+  @State private var dbmSpacing: CGFloat = 10
+
   let frequencyLegendHeight: CGFloat = 20
   let controlsViewHeight: CGFloat = 90
   
@@ -22,7 +22,6 @@ struct ContentView: View {
   var freqEnd: CGFloat { center + bandWidth/2 }
   
   var freqOffset: CGFloat { -freqStart.truncatingRemainder(dividingBy: freqIncr) }
-  var dbmOffset: CGFloat { -dbmHigh.truncatingRemainder(dividingBy: dbmIncr) }
 
   var body: some View {
     GeometryReader { g in
@@ -40,13 +39,15 @@ struct ContentView: View {
           DbmLines(dbmHigh: dbmHigh,
                    dbmLow: dbmLow,
                    width: g.size.width,
-                   height: g.size.height - frequencyLegendHeight - controlsViewHeight)
-          
+                   height: g.size.height - frequencyLegendHeight - controlsViewHeight,
+                   dbmSpacing: dbmSpacing)
+
           // Dbm Legend
-          DbmLegend(dbmHigh: dbmHigh,
-                    dbmLow: dbmLow,
+          DbmLegend(dbmHigh: $dbmHigh,
+                    dbmLow: $dbmLow,
                     width: g.size.width,
-                    height: g.size.height - frequencyLegendHeight - controlsViewHeight)
+                    height: g.size.height - frequencyLegendHeight - controlsViewHeight,
+                    dbmSpacing: $dbmSpacing)
         }
         
         // Frequency Legend
@@ -59,7 +60,6 @@ struct ContentView: View {
                         pixelPerHz: g.size.width/bandWidth,
                         format: "%0.6f")
         .frame(height: frequencyLegendHeight)
-        .foregroundColor(.green)
         
         // ----------------------------------------------------------------
         
@@ -68,8 +68,9 @@ struct ContentView: View {
                      bandWidth: $bandWidth,
                      freqIncr: $freqIncr,
                      dbmHigh: $dbmHigh,
-                     dbmLow: $dbmLow)
-          .frame(height: controlsViewHeight)
+                     dbmLow: $dbmLow,
+                     dbmSpacing: $dbmSpacing)
+        .frame(height: controlsViewHeight)
       }
     }
   }
@@ -80,12 +81,12 @@ private struct DbmLines: View {
   let dbmLow: CGFloat
   let width: CGFloat
   let height: CGFloat
-  
+  let dbmSpacing: CGFloat
+
   var dbmRange: CGFloat { dbmHigh - dbmLow }
   var pixelPerDbm: CGFloat { height / dbmRange }
 
-  let dbmIncr: CGFloat = 10
-  var dbmTopOffset: CGFloat { dbmHigh.truncatingRemainder(dividingBy: dbmIncr) }
+  var dbmTopOffset: CGFloat { dbmHigh.truncatingRemainder(dividingBy: dbmSpacing) }
 
   var body: some View {
     Path { path in
@@ -93,7 +94,7 @@ private struct DbmLines: View {
       repeat {
         path.move(to: CGPoint(x: 0, y: y))
         path.addLine(to: CGPoint(x: width, y: y))
-        y += pixelPerDbm * dbmIncr
+        y += pixelPerDbm * dbmSpacing
       } while y < height
     }
     .stroke(.gray, lineWidth: 1)
@@ -101,16 +102,20 @@ private struct DbmLines: View {
 }
 
 private struct DbmLegend: View {
-  let dbmHigh: CGFloat
-  let dbmLow: CGFloat
+  @Binding var dbmHigh: CGFloat
+  @Binding var dbmLow: CGFloat
   let width: CGFloat
   let height: CGFloat
+  @Binding var dbmSpacing: CGFloat
 
   var dbmRange: CGFloat { dbmHigh - dbmLow }
   var pixelPerDbm: CGFloat { height / dbmRange }
 
-  let dbmSpacing: CGFloat = 10
   var dbmTopOffset: CGFloat { dbmHigh.truncatingRemainder(dividingBy: dbmSpacing) }
+  var yIncr: CGFloat { pixelPerDbm * dbmSpacing }
+  
+  @State var startHigh: CGFloat?
+  @State var startLow: CGFloat?
 
   var legends: [CGFloat] {
     var array = [CGFloat]()
@@ -123,13 +128,58 @@ private struct DbmLegend: View {
     return array
   }
   
-  var yIncr: CGFloat { pixelPerDbm * dbmSpacing }
-  
   var body: some View {
     
-    ForEach(Array(legends.enumerated()), id: \.offset) { i, element in
-      Text(String(format: "%0.0f", element - dbmTopOffset))
-        .position(x: width - 20, y: (dbmTopOffset * pixelPerDbm) + (CGFloat(i) * yIncr))
+    ZStack(alignment: .trailing) {
+      ForEach(Array(legends.enumerated()), id: \.offset) { i, legend in
+        if legend > dbmLow {
+          Text(String(format: "%0.0f", legend - dbmTopOffset))
+            .position(x: width - 20, y: (dbmTopOffset * pixelPerDbm) + (CGFloat(i) * yIncr))
+            .foregroundColor(.green)
+        }
+      }
+      
+      Rectangle()
+        .frame(width: 50).border(.red)
+        .foregroundColor(.black).opacity(0.1)
+        .contentShape(Rectangle())
+        .gesture(
+          DragGesture()
+            .onChanged {value in
+              switch value.startLocation.y {
+              case 0..<height/3:
+                if let high = startHigh {
+                  dbmHigh = high - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+                } else {
+                  startHigh = dbmHigh
+                }
+              case 2*(height/3)...height:
+                if let low = startLow {
+                  dbmLow = low - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+                } else {
+                  startLow = dbmLow
+                }
+              default:
+                if let high = startHigh, let low = startLow {
+                  dbmHigh = high - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+                  dbmLow = low - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+                } else {
+                  startLow = dbmLow
+                  startHigh = dbmHigh
+                }
+              }
+            }
+            .onEnded { value in
+              startHigh = nil
+              startLow = nil
+            }
+        )
+        .contextMenu {
+          Button { dbmSpacing = 5 } label: {Text("5 dbm")}
+          Button { dbmSpacing = 10 } label: {Text("10 dbm")}
+          Button { dbmSpacing = 15 } label: {Text("15 dbm")}
+          Button { dbmSpacing = 20 } label: {Text("20 dbm")}
+        }
     }
   }
 }
@@ -165,7 +215,7 @@ private struct FrequencyLegend: View {
   
   var legendWidth: CGFloat { pixelPerHz * freqIncr }
   var legendsOffset: CGFloat { freqOffset * pixelPerHz }
-  
+
   var legends: [CGFloat] {
     var array = [CGFloat]()
     
@@ -181,7 +231,18 @@ private struct FrequencyLegend: View {
     HStack(spacing: 0) {
       ForEach(legends, id:\.self) { legend in
         Text(String(format: format, legend/1_000_000)).frame(width: legendWidth)
+          .contentShape(Rectangle())
+          .gesture(
+            DragGesture()
+              .onChanged { newValue in
+                print(".onChanged Freq")
+              }
+              .onEnded { _ in
+                print(".onEnded Freq")
+              }
+          )
           .offset(x: -legendWidth/2 )
+          .foregroundColor(.green)
       }
       .offset(x: legendsOffset)
     }
@@ -194,38 +255,45 @@ private struct ControlsView: View {
   @Binding var freqIncr: CGFloat
   @Binding var dbmHigh: CGFloat
   @Binding var dbmLow: CGFloat
+  @Binding var dbmSpacing: CGFloat
 
   var body: some View {
     VStack {
       HStack {
         HStack(spacing: 5) {
           Text("Center")
+          Text("\(Int(center))")
           Image(systemName: "minus.square")
+            .font(.title2)
             .onTapGesture{ center -= 100 }
           Slider(value: $center, in: 14_000_000...14_200_000, step: 1_000).frame(width: 130)
           Image(systemName: "plus.square")
+            .font(.title2)
             .onTapGesture{ center += 100 }
-          Text("\(Int(center))")
         }
         Spacer()
         HStack(spacing: 5) {
           Text("Bandwidth")
+          Text("\(Int(bandWidth))")
           Image(systemName: "minus.square")
+            .font(.title2)
             .onTapGesture{ bandWidth -= 100 }
           Slider(value: $bandWidth, in: 100_000...300_000, step: 1_000).frame(width: 130)
           Image(systemName: "plus.square")
+            .font(.title2)
             .onTapGesture{ bandWidth += 100 }
-          Text("\(Int(bandWidth))")
         }
         Spacer()
         HStack(spacing: 5) {
           Text("Freq Incr")
+          Text("\(Int(freqIncr))")
           Image(systemName: "minus.square")
+            .font(.title2)
             .onTapGesture{ freqIncr -= 1_000 }
           Slider(value: $freqIncr, in: 5_000...40_000, step: 1_000).frame(width: 150)
           Image(systemName: "plus.square")
+            .font(.title2)
             .onTapGesture{ freqIncr += 1_000 }
-          Text("\(Int(freqIncr))")
         }
       }
       
@@ -238,22 +306,38 @@ private struct ControlsView: View {
       HStack {
         HStack(spacing: 5) {
           Text("Dbm High")
+          Text("\(Int(dbmHigh))")
           Image(systemName: "minus.square")
+            .font(.title2)
             .onTapGesture{ dbmHigh -= 1 }
           Slider(value: $dbmHigh, in: -50...10, step: 10).frame(width: 130)
           Image(systemName: "plus.square")
+            .font(.title2)
             .onTapGesture{ dbmHigh += 1 }
-          Text("\(Int(dbmHigh))")
         }
         Spacer()
         HStack(spacing: 5) {
           Text("Dbm Low")
+          Text("\(Int(dbmLow))")
           Image(systemName: "minus.square")
+            .font(.title2)
             .onTapGesture{ dbmLow -= 1 }
           Slider(value: $dbmLow, in: -130...0, step: 10).frame(width: 130)
           Image(systemName: "plus.square")
+            .font(.title2)
             .onTapGesture{ dbmLow += 1 }
-          Text("\(Int(dbmLow))")
+        }
+        Spacer()
+        HStack(spacing: 5) {
+          Text("Dbm Spacing")
+          Text("\(Int(dbmSpacing))")
+          Image(systemName: "minus.square")
+            .font(.title2)
+            .onTapGesture{ dbmSpacing -= 5 }
+          Slider(value: $dbmSpacing, in: 5...40, step: 5).frame(width: 130)
+          Image(systemName: "plus.square")
+            .font(.title2)
+            .onTapGesture{ dbmSpacing += 5 }
         }
       }
     }

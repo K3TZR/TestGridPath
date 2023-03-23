@@ -57,6 +57,11 @@ struct FrequencyLegendView: View {
           )
           .offset(x: -legendWidth/2 )
           .foregroundColor(color)
+          .contextMenu {
+            Button { spacing /= 2 } label: {Text("spacing / 2")}
+            Button { spacing *= 2 } label: {Text("spacing * 2")}
+          }
+
       }
       .offset(x: legendsOffset)
     }

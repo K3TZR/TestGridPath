@@ -69,7 +69,7 @@ struct ContentView: View {
           Divider().background(Color(.red))
           ControlsView(center: $center,
                        bandWidth: $bandWidth,
-                       freqIncr: $freqSpacing,
+                       freqSpacing: $freqSpacing,
                        dbmHigh: $dbmHigh,
                        dbmLow: $dbmLow,
                        dbmSpacing: $dbmSpacing)
@@ -87,7 +87,7 @@ struct ContentView: View {
 private struct ControlsView: View {
   @Binding var center: CGFloat
   @Binding var bandWidth: CGFloat
-  @Binding var freqIncr: CGFloat
+  @Binding var freqSpacing: CGFloat
   @Binding var dbmHigh: CGFloat
   @Binding var dbmLow: CGFloat
   @Binding var dbmSpacing: CGFloat
@@ -120,15 +120,15 @@ private struct ControlsView: View {
         }
         Spacer()
         HStack(spacing: 5) {
-          Text("Freq Incr")
-          Text("\(Int(freqIncr))")
+          Text("Spacing")
+          Text("\(Int(freqSpacing))")
           Image(systemName: "minus.square")
             .font(.title2)
-            .onTapGesture{ freqIncr -= 1_000 }
-          Slider(value: $freqIncr, in: 5_000...40_000, step: 1_000).frame(width: 150)
+            .onTapGesture{ freqSpacing -= 1_000 }
+          Slider(value: $freqSpacing, in: 5_000...40_000, step: 1_000).frame(width: 150)
           Image(systemName: "plus.square")
             .font(.title2)
-            .onTapGesture{ freqIncr += 1_000 }
+            .onTapGesture{ freqSpacing += 1_000 }
         }
       }
       

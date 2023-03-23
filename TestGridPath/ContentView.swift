@@ -10,241 +10,76 @@ import SwiftUI
 struct ContentView: View {
   @State private var center: CGFloat = 14_100_000
   @State private var bandWidth: CGFloat = 200_000
-  @State private var freqIncr: CGFloat = 20_000
+  @State private var freqSpacing: CGFloat = 20_000
   @State private var dbmHigh: CGFloat = 10
   @State private var dbmLow: CGFloat = -100
   @State private var dbmSpacing: CGFloat = 10
 
-  let frequencyLegendHeight: CGFloat = 20
+  @State var showControls = true
+  
+  let legendColor: Color = .green
+  let linesColor: Color = .gray
+  let frequencyLegendHeight: CGFloat = 30
   let controlsViewHeight: CGFloat = 90
   
-  var freqStart: CGFloat { center - bandWidth/2 }
-  var freqEnd: CGFloat { center + bandWidth/2 }
+  var bottomHeight: CGFloat { showControls ? frequencyLegendHeight + controlsViewHeight : frequencyLegendHeight }
   
-  var freqOffset: CGFloat { -freqStart.truncatingRemainder(dividingBy: freqIncr) }
-
   var body: some View {
     GeometryReader { g in
       VStack(alignment: .leading, spacing: 0) {
         
         ZStack {
           // Vertical lines
-          FrequencyLines(width: g.size.width,
-                         height: g.size.height - frequencyLegendHeight - controlsViewHeight,
-                         freqIncr: freqIncr,
-                         freqOffset: freqOffset,
-                         pixelPerHz: g.size.width/bandWidth)
+          FrequencyLinesView(center: center,
+                             bandWidth: bandWidth,
+                             spacing: freqSpacing,
+                             width: g.size.width,
+                             height: g.size.height - bottomHeight,
+                             color: linesColor)
           
           // Horizontal lines
-          DbmLines(dbmHigh: dbmHigh,
-                   dbmLow: dbmLow,
-                   width: g.size.width,
-                   height: g.size.height - frequencyLegendHeight - controlsViewHeight,
-                   dbmSpacing: dbmSpacing)
-
+          DbmLinesView(high: dbmHigh,
+                       low: dbmLow,
+                       spacing: dbmSpacing,
+                       width: g.size.width,
+                       height: g.size.height - bottomHeight,
+                       color: linesColor)
+          
           // Dbm Legend
-          DbmLegend(dbmHigh: $dbmHigh,
-                    dbmLow: $dbmLow,
-                    width: g.size.width,
-                    height: g.size.height - frequencyLegendHeight - controlsViewHeight,
-                    dbmSpacing: $dbmSpacing)
+          DbmLegendView(high: $dbmHigh,
+                        low: $dbmLow,
+                        spacing: $dbmSpacing,
+                        width: g.size.width,
+                        height: g.size.height - bottomHeight,
+                        color: legendColor)
         }
         
         // Frequency Legend
-        Divider().background(Color.green)
-        FrequencyLegend(freqStart: freqStart,
-                        freqEnd: freqEnd,
-                        width: g.size.width,
-                        freqIncr: freqIncr,
-                        freqOffset: freqOffset,
-                        pixelPerHz: g.size.width/bandWidth,
-                        format: "%0.6f")
+        Divider().background(legendColor)
+        FrequencyLegendView(center: $center,
+                            bandWidth: $bandWidth,
+                            spacing: $freqSpacing,
+                            width: g.size.width,
+                            format: "%0.6f",
+                            color: legendColor)
         .frame(height: frequencyLegendHeight)
         
         // ----------------------------------------------------------------
-        
-        Divider().background(Color(.red))
-        ControlsView(center: $center,
-                     bandWidth: $bandWidth,
-                     freqIncr: $freqIncr,
-                     dbmHigh: $dbmHigh,
-                     dbmLow: $dbmLow,
-                     dbmSpacing: $dbmSpacing)
-        .frame(height: controlsViewHeight)
-      }
-    }
-  }
-}
-
-private struct DbmLines: View {
-  let dbmHigh: CGFloat
-  let dbmLow: CGFloat
-  let width: CGFloat
-  let height: CGFloat
-  let dbmSpacing: CGFloat
-
-  var dbmRange: CGFloat { dbmHigh - dbmLow }
-  var pixelPerDbm: CGFloat { height / dbmRange }
-
-  var dbmTopOffset: CGFloat { dbmHigh.truncatingRemainder(dividingBy: dbmSpacing) }
-
-  var body: some View {
-    Path { path in
-      var y: CGFloat = dbmTopOffset * pixelPerDbm
-      repeat {
-        path.move(to: CGPoint(x: 0, y: y))
-        path.addLine(to: CGPoint(x: width, y: y))
-        y += pixelPerDbm * dbmSpacing
-      } while y < height
-    }
-    .stroke(.gray, lineWidth: 1)
-  }
-}
-
-private struct DbmLegend: View {
-  @Binding var dbmHigh: CGFloat
-  @Binding var dbmLow: CGFloat
-  let width: CGFloat
-  let height: CGFloat
-  @Binding var dbmSpacing: CGFloat
-
-  var dbmRange: CGFloat { dbmHigh - dbmLow }
-  var pixelPerDbm: CGFloat { height / dbmRange }
-
-  var dbmTopOffset: CGFloat { dbmHigh.truncatingRemainder(dividingBy: dbmSpacing) }
-  var yIncr: CGFloat { pixelPerDbm * dbmSpacing }
-  
-  @State var startHigh: CGFloat?
-  @State var startLow: CGFloat?
-
-  var legends: [CGFloat] {
-    var array = [CGFloat]()
-    
-    var currentDbm = dbmHigh
-    repeat {
-      array.append( currentDbm )
-      currentDbm -= dbmSpacing
-    } while ( currentDbm >= dbmLow )
-    return array
-  }
-  
-  var body: some View {
-    
-    ZStack(alignment: .trailing) {
-      ForEach(Array(legends.enumerated()), id: \.offset) { i, legend in
-        if legend > dbmLow {
-          Text(String(format: "%0.0f", legend - dbmTopOffset))
-            .position(x: width - 20, y: (dbmTopOffset * pixelPerDbm) + (CGFloat(i) * yIncr))
-            .foregroundColor(.green)
+        if showControls {
+          Divider().background(Color(.red))
+          ControlsView(center: $center,
+                       bandWidth: $bandWidth,
+                       freqIncr: $freqSpacing,
+                       dbmHigh: $dbmHigh,
+                       dbmLow: $dbmLow,
+                       dbmSpacing: $dbmSpacing)
+          .frame(height: controlsViewHeight)
         }
       }
-      
-      Rectangle()
-        .frame(width: 50).border(.red)
-        .foregroundColor(.black).opacity(0.1)
-        .contentShape(Rectangle())
-        .gesture(
-          DragGesture()
-            .onChanged {value in
-              switch value.startLocation.y {
-              case 0..<height/3:
-                if let high = startHigh {
-                  dbmHigh = high - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                } else {
-                  startHigh = dbmHigh
-                }
-              case 2*(height/3)...height:
-                if let low = startLow {
-                  dbmLow = low - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                } else {
-                  startLow = dbmLow
-                }
-              default:
-                if let high = startHigh, let low = startLow {
-                  dbmHigh = high - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                  dbmLow = low - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                } else {
-                  startLow = dbmLow
-                  startHigh = dbmHigh
-                }
-              }
-            }
-            .onEnded { value in
-              startHigh = nil
-              startLow = nil
-            }
-        )
-        .contextMenu {
-          Button { dbmSpacing = 5 } label: {Text("5 dbm")}
-          Button { dbmSpacing = 10 } label: {Text("10 dbm")}
-          Button { dbmSpacing = 15 } label: {Text("15 dbm")}
-          Button { dbmSpacing = 20 } label: {Text("20 dbm")}
-        }
     }
-  }
-}
-
-private struct FrequencyLines: View {
-  let width: CGFloat
-  let height: CGFloat
-  let freqIncr: CGFloat
-  let freqOffset: CGFloat
-  let pixelPerHz: CGFloat
-  
-  var body: some View {
-    Path { path in
-      var x: CGFloat = freqOffset * pixelPerHz
-      repeat {
-        path.move(to: CGPoint(x: x, y: 0))
-        path.addLine(to: CGPoint(x: x, y: height))
-        x += pixelPerHz * freqIncr
-      } while x < width
-    }
-    .stroke(.gray, lineWidth: 1)
-  }
-}
-
-private struct FrequencyLegend: View {
-  let freqStart: CGFloat
-  let freqEnd: CGFloat
-  let width: CGFloat
-  let freqIncr: CGFloat
-  let freqOffset: CGFloat
-  let pixelPerHz: CGFloat
-  let format: String
-  
-  var legendWidth: CGFloat { pixelPerHz * freqIncr }
-  var legendsOffset: CGFloat { freqOffset * pixelPerHz }
-
-  var legends: [CGFloat] {
-    var array = [CGFloat]()
-    
-    var currentFrequency = freqStart + freqOffset
-    repeat {
-      array.append( currentFrequency )
-      currentFrequency += freqIncr
-    } while ( currentFrequency <= freqEnd )
-    return array
-  }
-  
-  var body: some View {
-    HStack(spacing: 0) {
-      ForEach(legends, id:\.self) { legend in
-        Text(String(format: format, legend/1_000_000)).frame(width: legendWidth)
-          .contentShape(Rectangle())
-          .gesture(
-            DragGesture()
-              .onChanged { newValue in
-                print(".onChanged Freq")
-              }
-              .onEnded { _ in
-                print(".onEnded Freq")
-              }
-          )
-          .offset(x: -legendWidth/2 )
-          .foregroundColor(.green)
-      }
-      .offset(x: legendsOffset)
+    .toolbar {
+      Spacer()
+      Button("Controls") { showControls.toggle()}
     }
   }
 }
@@ -258,7 +93,7 @@ private struct ControlsView: View {
   @Binding var dbmSpacing: CGFloat
 
   var body: some View {
-    VStack {
+    VStack(alignment: .leading) {
       HStack {
         HStack(spacing: 5) {
           Text("Center")
@@ -348,21 +183,5 @@ struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView()
       .frame(width: 1000)
-  }
-}
-
-extension String {
-  func height(withConstrainedWidth width: CGFloat, font: Font) -> CGFloat {
-    let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-    let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
-    
-    return ceil(boundingBox.height)
-  }
-  
-  func width(withConstrainedHeight height: CGFloat, font: Font) -> CGFloat {
-    let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: height)
-    let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
-    
-    return ceil(boundingBox.width)
   }
 }

@@ -11,6 +11,10 @@
 		9FED787A29C2A42400DFD198 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED787929C2A42400DFD198 /* ContentView.swift */; };
 		9FED787C29C2A42500DFD198 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FED787B29C2A42500DFD198 /* Assets.xcassets */; };
 		9FED787F29C2A42500DFD198 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FED787E29C2A42500DFD198 /* Preview Assets.xcassets */; };
+		9FED788729CB43A300DFD198 /* DbmLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788629CB43A300DFD198 /* DbmLinesView.swift */; };
+		9FED788929CB446100DFD198 /* DbmLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788829CB446100DFD198 /* DbmLegendView.swift */; };
+		9FED788B29CB455E00DFD198 /* FrequencyLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788A29CB455E00DFD198 /* FrequencyLinesView.swift */; };
+		9FED788D29CB463C00DFD198 /* FrequencyLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788C29CB463C00DFD198 /* FrequencyLegendView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +24,10 @@
 		9FED787B29C2A42500DFD198 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9FED787E29C2A42500DFD198 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		9FED788029C2A42500DFD198 /* TestGridPath.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TestGridPath.entitlements; sourceTree = "<group>"; };
+		9FED788629CB43A300DFD198 /* DbmLinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbmLinesView.swift; sourceTree = "<group>"; };
+		9FED788829CB446100DFD198 /* DbmLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbmLegendView.swift; sourceTree = "<group>"; };
+		9FED788A29CB455E00DFD198 /* FrequencyLinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyLinesView.swift; sourceTree = "<group>"; };
+		9FED788C29CB463C00DFD198 /* FrequencyLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyLegendView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +65,10 @@
 				9FED787B29C2A42500DFD198 /* Assets.xcassets */,
 				9FED788029C2A42500DFD198 /* TestGridPath.entitlements */,
 				9FED787D29C2A42500DFD198 /* Preview Content */,
+				9FED788629CB43A300DFD198 /* DbmLinesView.swift */,
+				9FED788829CB446100DFD198 /* DbmLegendView.swift */,
+				9FED788A29CB455E00DFD198 /* FrequencyLinesView.swift */,
+				9FED788C29CB463C00DFD198 /* FrequencyLegendView.swift */,
 			);
 			path = TestGridPath;
 			sourceTree = "<group>";
@@ -141,6 +153,10 @@
 			files = (
 				9FED787A29C2A42400DFD198 /* ContentView.swift in Sources */,
 				9FED787829C2A42400DFD198 /* TestGridPathApp.swift in Sources */,
+				9FED788D29CB463C00DFD198 /* FrequencyLegendView.swift in Sources */,
+				9FED788729CB43A300DFD198 /* DbmLinesView.swift in Sources */,
+				9FED788929CB446100DFD198 /* DbmLegendView.swift in Sources */,
+				9FED788B29CB455E00DFD198 /* FrequencyLinesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,7 +295,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.TestGridPath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -306,7 +322,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = net.k3tzr.TestGridPath;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

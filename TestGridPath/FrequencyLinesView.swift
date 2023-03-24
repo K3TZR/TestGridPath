@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FrequencyLinesView: View {
-  let center: CGFloat
+  @Binding var center: CGFloat
   let bandWidth: CGFloat
   let spacing: CGFloat
   let width: CGFloat
@@ -20,6 +20,8 @@ struct FrequencyLinesView: View {
   var high: CGFloat { center + bandWidth/2 }
   var pixelPerHz: CGFloat { width / (high - low) }
 
+  @State var startCenter: CGFloat?
+  
   var body: some View {
     Path { path in
       var x: CGFloat = offset * pixelPerHz
@@ -30,13 +32,28 @@ struct FrequencyLinesView: View {
       } while x < width
     }
     .stroke(color, lineWidth: 1)
+    .contentShape(Rectangle())
+
+    .gesture(
+      DragGesture()
+        .onChanged { drag in
+          if let start = startCenter {
+            DispatchQueue.main.async { center = start + ((drag.startLocation.x - drag.location.x)/pixelPerHz) }
+          } else {
+            startCenter = center
+          }
+        }
+        .onEnded { _ in
+          startCenter = nil
+        }
+      )
   }
 }
 
 
 struct FrequencyLinesView_Previews: PreviewProvider {
     static var previews: some View {
-      FrequencyLinesView(center: 14_100_000,
+      FrequencyLinesView(center: .constant(14_100_000),
                          bandWidth: 200_000,
                          spacing: 20_000,
                          width: 800,

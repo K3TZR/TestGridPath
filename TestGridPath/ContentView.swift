@@ -31,6 +31,8 @@ struct ContentView: View {
         ZStack {
           // Vertical lines
           FrequencyLinesView(center: $center,
+                             dbmHigh: $dbmHigh,
+                             dbmLow: $dbmLow,
                              bandWidth: bandWidth,
                              spacing: freqSpacing,
                              width: g.size.width,

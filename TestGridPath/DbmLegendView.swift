@@ -50,31 +50,34 @@ struct DbmLegendView: View {
           DragGesture()
             .onChanged {value in
               switch value.startLocation.y {
-                // Top 1/3 of legend, drag Top value
-              case 0..<height/3:
+                // Top 1/2 of legend, drag Top value
+              case 0..<height/2:
                 if let startHigh {
                   DispatchQueue.main.async { high = startHigh - ((value.startLocation.y - value.location.y)/pixelPerDbm) }
                 } else {
                   startHigh = high
                 }
-                // Bottom 1/3 of legend, drag Bottom value
-              case 2*(height/3)...height:
+                // Bottom 1/2 of legend, drag Bottom value
+              case height/2...height:
                 if let startLow {
                   DispatchQueue.main.async { low = startLow - ((value.startLocation.y - value.location.y)/pixelPerDbm) }
                 } else {
                   startLow = low
                 }
-                // Center of legend, drag range of values (Top & Bottom)
               default:
-                if let startHigh, let startLow {
-                  DispatchQueue.main.async { [value] in
-                    high = startHigh - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                    low = startLow - ((value.startLocation.y - value.location.y)/pixelPerDbm)
-                  }
-                } else {
-                  startLow = low
-                  startHigh = high
-                }
+                // not possible
+                break
+                // Center of legend, drag range of values (Top & Bottom)
+//              default:
+//                if let startHigh, let startLow {
+//                  DispatchQueue.main.async { [value] in
+//                    high = startHigh - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+//                    low = startLow - ((value.startLocation.y - value.location.y)/pixelPerDbm)
+//                  }
+//                } else {
+//                  startLow = low
+//                  startHigh = high
+//                }
               }
             }
             .onEnded { _ in

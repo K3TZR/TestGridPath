@@ -15,6 +15,7 @@
 		9FED788929CB446100DFD198 /* DbmLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788829CB446100DFD198 /* DbmLegendView.swift */; };
 		9FED788B29CB455E00DFD198 /* FrequencyLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788A29CB455E00DFD198 /* FrequencyLinesView.swift */; };
 		9FED788D29CB463C00DFD198 /* FrequencyLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FED788C29CB463C00DFD198 /* FrequencyLegendView.swift */; };
+		9FED788F29CDEF2700DFD198 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9FED788E29CDEF2700DFD198 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		9FED788829CB446100DFD198 /* DbmLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbmLegendView.swift; sourceTree = "<group>"; };
 		9FED788A29CB455E00DFD198 /* FrequencyLinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyLinesView.swift; sourceTree = "<group>"; };
 		9FED788C29CB463C00DFD198 /* FrequencyLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrequencyLegendView.swift; sourceTree = "<group>"; };
+		9FED788E29CDEF2700DFD198 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +46,7 @@
 		9FED786B29C2A42400DFD198 = {
 			isa = PBXGroup;
 			children = (
+				9FED788E29CDEF2700DFD198 /* README.md */,
 				9FED787629C2A42400DFD198 /* TestGridPath */,
 				9FED787529C2A42400DFD198 /* Products */,
 			);
@@ -139,6 +142,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FED788F29CDEF2700DFD198 /* README.md in Resources */,
 				9FED787F29C2A42500DFD198 /* Preview Assets.xcassets in Resources */,
 				9FED787C29C2A42500DFD198 /* Assets.xcassets in Resources */,
 			);
@@ -284,7 +288,7 @@
 				CODE_SIGN_ENTITLEMENTS = TestGridPath/TestGridPath.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"TestGridPath/Preview Content\"";
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -311,7 +315,7 @@
 				CODE_SIGN_ENTITLEMENTS = TestGridPath/TestGridPath.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"TestGridPath/Preview Content\"";
 				DEVELOPMENT_TEAM = EE5B8TYXGA;
 				ENABLE_HARDENED_RUNTIME = YES;
